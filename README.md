@@ -1,5 +1,4 @@
-## [CMULAB](https://github.com/neulab/cmulab/) extension for [Allosaurus](https://github.com/xinjli/allosaurus/)
-
+## [Allosaurus](https://github.com/xinjli/allosaurus/) plugin for the [CMU Linguistic Annotation Backend](https://github.com/neulab/cmulab/)
 
 ### Install
 
