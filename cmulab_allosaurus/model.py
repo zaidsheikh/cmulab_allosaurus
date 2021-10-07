@@ -37,14 +37,15 @@ def fine_tune(data_dir, pretrained_model, new_model_name, params={}):
    """
    params is a dictionary of key, value pairs
    data_dir should have the following structure
-   see allosaurus documentation for details
    data_dir/
    ├── train/
-   │   ├── text
-   │   └── wave
+   │   ├── utt_1.wav
+   │   ├── utt_1.wav
+   │   └── ...
    └── validate/
-       ├── text
-       └── wave
+       ├── utt_x.wav
+       ├── utt_x.txt
+       └── ...
    """
 
    default_params = {
@@ -69,6 +70,18 @@ def fine_tune(data_dir, pretrained_model, new_model_name, params={}):
 
    data_path = Path(train_config.path)
    for subdir in ["train", "validate"]:
+
+      with open(data_path / subdir / 'wave', 'w') as fwave:
+         for wavfile in sorted((data_path / subdir).glob("*.wav")):
+            utt_id = wavfile.name[:-len(".wav")]
+            fwave.write(utt_id + " " + str(wavfile.resolve()) + "\n")
+
+      with open(data_path / subdir / 'text', 'w') as ftext:
+         for txtfile in sorted((data_path / subdir).glob("*.txt")):
+            utt_id = txtfile.name[:-len(".txt")]
+            transcription = txtfile.read_text().replace('\n', ' ').strip()
+            ftext.write(utt_id + " " + transcription + "\n")
+
       prepare_feature(data_path / subdir, train_config.pretrained_model)
       prepare_token(data_path / subdir, train_config.pretrained_model, train_config.lang)
 
