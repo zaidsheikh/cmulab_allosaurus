@@ -17,7 +17,7 @@ from allosaurus.am.loader import read_loader
 recognizers = {}
 
 
-def recognize(input_file, params):
+def recognize(input_file, params={}):
    """
    params is a dictionary of key, value pairs
    """
@@ -33,7 +33,7 @@ def recognize(input_file, params):
    return recognizers[model].recognize(input_file, lang_id=lang)
 
 
-def fine_tune(data_dir, pretrained_model, new_model_name, params):
+def fine_tune(data_dir, pretrained_model, new_model_name, params={}):
    """
    params is a dictionary of key, value pairs
    data_dir should have the following structure
