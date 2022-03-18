@@ -12,6 +12,9 @@ from allosaurus.model import copy_model, resolve_model_name
 from allosaurus.am.factory import transfer_am
 from allosaurus.am.trainer import Trainer
 from allosaurus.am.loader import read_loader
+from allosaurus.lm.inventory import Inventory
+from allosaurus.model import get_model_path
+import regex as re
 
 
 recognizers = {}
@@ -67,6 +70,12 @@ def fine_tune(data_dir, pretrained_model, new_model_name, params={}):
    default_params.update(params)
 
    train_config = argparse.Namespace(**default_params)
+   model_path = get_model_path(train_config.pretrained_model)
+   inventory = Inventory(model_path)
+   mask = inventory.get_mask(train_config.lang)
+   unit = mask.target_unit
+   lang_phones = sorted(list(unit.id_to_unit.values())[1:], key=len, reverse=True)
+   phones_regex = re.compile('|'.join(list(map(re.escape, lang_phones))), re.U)
 
    data_path = Path(train_config.path)
    for subdir in ["train", "validate"]:
@@ -80,6 +89,8 @@ def fine_tune(data_dir, pretrained_model, new_model_name, params={}):
          for txtfile in sorted((data_path / subdir).glob("*.txt")):
             utt_id = txtfile.name[:-len(".txt")]
             transcription = txtfile.read_text().replace('\n', ' ').strip()
+            # recover spaces between phones
+            transcription = ' '.join([m.group(0) for m in phones_regex.finditer(transcription)])
             ftext.write(utt_id + " " + transcription + "\n")
 
       prepare_feature(data_path / subdir, train_config.pretrained_model)
